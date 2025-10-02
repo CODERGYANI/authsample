@@ -1,33 +1,32 @@
 const express=require('express');
 const app= express();
+const userModel=require("./models/user");
 const cookieParser=require('cookie-parser');
 app.use(cookieParser());
+app.set("view engine",'ejs');
 const bcrypt=require('bcrypt');
 const jwt=require('jsonwebtoken');
-
-/*app.get('/',(req,res)=>{
-    bcrypt.compare("harsh","$2b$10$2mMOtUKYsds6OZktbSkPM.6VagVv2HBIP0KtMGapxpV97VNZo6xta",function(err,result){
-        console.log(result);
-    });
-    res.cookie("name","harsh");
-    res.send("done");
-    
-});*/
+const path=require('path');
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
+app.use(express.static(path.join(__dirname,'public')));
 app.get('/',(req,res)=>{
-    let token=jwt.sign({email:"nitesh@gmail.com"},"secret")
-    console.log(token);
-    res.cookie("token",token);
-    res.send("done");
-    
-    
+    res.render("index");
+})
+app.post('/create',async (req,res)=>{
+    let {Name,email,password,age}=req.body;
+    bcrypt.genSalt(10, (err,salt)=>{
+    bcrypt.hash(password,salt,async (err,salt)=>{
+        let created =await userModel.create({
+        Name,
+        password:hash,
+        email,
+        age
+    })
+    console.log(password);
+     res.send(created); 
+    });
+    }); 
 });
-app.get('/verify',(req,res)=>{
-    let token=req.cookies.token;
-    console.log(token);
-    let data=jwt.verify(req.cookies.token,"secret");
-    console.log(data);
-
-});
-
 
 app.listen(3000);
