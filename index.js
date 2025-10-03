@@ -16,17 +16,27 @@ app.get('/',(req,res)=>{
 app.post('/create',async (req,res)=>{
     let {Name,email,password,age}=req.body;
     bcrypt.genSalt(10, (err,salt)=>{
-    bcrypt.hash(password,salt,async (err,salt)=>{
+    bcrypt.hash(password,salt,async (err,hash)=>{
         let created =await userModel.create({
         Name,
-        password:hash,
+        password: hash,
         email,
         age
     })
+    let tokken=jwt.sign({email},"shh");
+    res.cookie("token",tokken);
     console.log(password);
      res.send(created); 
     });
+
+
     }); 
 });
+app.get('/logout',(req,res)=>{
+    res.cookie("token","");
+    res.redirect("/");
+
+
+})
 
 app.listen(3000);
